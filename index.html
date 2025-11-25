@@ -2,11 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard Evaluaciones Operadores</title>
+  <title>Dashboard Evaluaciones – Operadores</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #d9232d;  /* rojo Xtreme */
+      --primary: #d9232d;
       --primary-soft: #ffe5e7;
       --dark: #222;
       --bg: #f2f4f7;
@@ -15,9 +15,7 @@
       --text-muted: #777;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -41,9 +39,7 @@
       gap: 18px;
     }
 
-    header img {
-      height: 55px;
-    }
+    header img { height: 55px; }
 
     header h1 {
       margin: 0;
@@ -104,18 +100,9 @@
       transform: translateY(1px);
       box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
     }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-secondary {
-      background: #6c757d;
-      color: #fff;
-    }
-    .btn-pdf {
-      background: #d9534f;
-      color: #fff;
-    }
+    .btn-primary   { background: var(--primary); color: #fff; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn-pdf       { background: #d9534f; color: #fff; }
 
     .filters-bar .right {
       margin-left: auto;
@@ -141,9 +128,7 @@
     .kpi-card::before {
       content: "";
       position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
+      left: 0; top: 0; bottom: 0;
       width: 4px;
       background: var(--primary);
     }
@@ -162,7 +147,7 @@
       color: var(--text-muted);
     }
 
-    /* GRÁFICOS */
+    /* Gráficos */
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -176,14 +161,14 @@
       border-radius: 10px;
       padding: 16px 18px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      height: 400px;
+      height: 380px;
       display: flex;
       flex-direction: column;
     }
 
     .chart-card.wide {
-      grid-column: 1 / -1;   /* ocupa todo el ancho */
-      height: 420px;
+      grid-column: 1 / -1;
+      height: 400px;
     }
 
     .chart-card h3 {
@@ -198,9 +183,7 @@
     }
 
     @media (max-width: 950px) {
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
+      .charts-grid { grid-template-columns: 1fr; }
       .chart-card,
       .chart-card.wide {
         grid-column: 1 / -1;
@@ -228,28 +211,17 @@
       background: #f4f6f8;
       text-align: left;
     }
-    tr:nth-child(even) td {
-      background: #fafafa;
-    }
-    tr:hover td {
-      background: #e9f3ff;
-    }
+    tr:nth-child(even) td { background: #fafafa; }
+    tr:hover td          { background: #e9f3ff; }
 
     /* Impresión */
     @media print {
-      body {
-        background: #fff;
-      }
+      body { background: #fff; }
       header {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
-      .filters-bar {
-        display: none;
-      }
-      button {
-        display: none;
-      }
+      .filters-bar, button { display: none; }
       .container {
         max-width: 100%;
         margin: 0;
@@ -262,7 +234,7 @@
 
 <header>
   <div>
-    <img src="logo_Xtreme.png" alt="Xtreme Mining" />
+    <img src="logo_Xtreme.png" alt="Xtreme Mining">
     <div>
       <h1>Dashboard Evaluaciones – Operadores</h1>
       <div class="subtitle">
@@ -274,7 +246,7 @@
 
 <div class="container">
 
-  <!-- BARRA DE FILTROS -->
+  <!-- Filtros -->
   <div class="filters-bar">
     <div class="group">
       <label for="filtro-rut">RUT:</label>
@@ -290,15 +262,15 @@
     </div>
 
     <div class="group">
-      <label for="filtro-instructor">Instructor:</label>
-      <select id="filtro-instructor" onchange="aplicarFiltros()">
+      <label for="filtro-contrato">Contrato:</label>
+      <select id="filtro-contrato" onchange="aplicarFiltros()">
         <option value="TODOS">Todos</option>
       </select>
     </div>
 
     <div class="group">
-      <label for="filtro-contrato">Contrato:</label>
-      <select id="filtro-contrato" onchange="aplicarFiltros()">
+      <label for="filtro-instructor">Instructor:</label>
+      <select id="filtro-instructor" onchange="aplicarFiltros()">
         <option value="TODOS">Todos</option>
       </select>
     </div>
@@ -313,7 +285,7 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-title">Registros de evaluación</div>
-      <div class="kpi-value" id="kpi-total-registros">0</div>
+      <div class="kpi-value" id="kpi-registros">0</div>
       <div class="kpi-sub">Total de filas con datos</div>
     </div>
     <div class="kpi-card">
@@ -322,14 +294,14 @@
       <div class="kpi-sub">Por RUT / Nombre</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-title">Promedio Nota Final</div>
-      <div class="kpi-value" id="kpi-promedio-nota">0.0</div>
-      <div class="kpi-sub">Columna NOTA FINAL</div>
+      <div class="kpi-title">Promedio nota final</div>
+      <div class="kpi-value" id="kpi-prom-nota">0.0</div>
+      <div class="kpi-sub">Columna NOTAFINAL</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-title">Promedio Total Puntos</div>
-      <div class="kpi-value" id="kpi-promedio-puntos">0.0</div>
-      <div class="kpi-sub">Columna TOTAL PUNTOS</div>
+      <div class="kpi-title">Promedio total puntos</div>
+      <div class="kpi-value" id="kpi-prom-puntos">0.0</div>
+      <div class="kpi-sub">Columna TOTALPUNTOS</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Equipos distintos</div>
@@ -343,7 +315,7 @@
     </div>
   </div>
 
-  <!-- GRÁFICOS -->
+  <!-- Gráficos -->
   <div class="charts-grid">
     <div class="chart-card wide">
       <h3>Nota final por operador</h3>
@@ -357,17 +329,9 @@
       <h3>Promedio nota por equipo</h3>
       <canvas id="chartNotaEquipo"></canvas>
     </div>
-    <div class="chart-card">
-      <h3>Promedio nota por instructor</h3>
-      <canvas id="chartNotaInstructor"></canvas>
-    </div>
-    <div class="chart-card">
-      <h3>Cantidad de registros por equipo</h3>
-      <canvas id="chartCantidadEquipo"></canvas>
-    </div>
   </div>
 
-  <!-- TABLA DETALLE -->
+  <!-- Tabla detalle -->
   <table id="tabla-detalle">
     <thead>
       <tr>
@@ -387,19 +351,16 @@
 </div>
 
 <script>
-  // URL CSV de la hoja publicada (ya en formato output=csv)
+  // URL CSV de la hoja publicada
   const CSV_URL =
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv2nHTgf2UJjzyxQs0e79UCLz2lRIyGO9AR4y_2p9Nq61lQ0sErMa9IakEDKy_6b4F1V2shvuu3AZQ/pub?gid=0&single=true&output=csv";
 
   let registrosBase = [];
   let registrosActuales = [];
 
-  let chartNotaOperador, chartPuntosOperador, chartNotaEquipo, chartNotaInstructor, chartCantidadEquipo;
+  let chartNotaOperador, chartPuntosOperador, chartNotaEquipo;
 
-  // Guarda la última versión cruda del CSV para detectar cambios
-  let lastCsvRaw = "";
-
-  // CONFIGURACIÓN GLOBAL CHART.JS (mejora estética)
+  // Estilo global de Chart.js
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.font.family = "Arial, sans-serif";
   Chart.defaults.plugins.legend.position = "bottom";
@@ -407,19 +368,10 @@
   Chart.defaults.plugins.legend.labels.pointStyle = "circle";
 
   document.addEventListener("DOMContentLoaded", () => {
-    cargarDatos(false);        // primera carga
-    iniciarAutoActualizacion(); // luego refresca solo
+    cargarDatos();
   });
 
-  // Auto-actualización cada X ms
-  function iniciarAutoActualizacion() {
-    const INTERVALO_MS = 60000;  // 60 segundos; puedes bajarlo a 15000 si quieres 15 s
-    setInterval(() => {
-      cargarDatos(true);       // true = recarga automática
-    }, INTERVALO_MS);
-  }
-
-  // Parser CSV simple con comillas
+  // Parser CSV con comillas
   function parseCSV(text) {
     const rows = [];
     let current = [];
@@ -464,157 +416,103 @@
     return rows;
   }
 
-  // Carga de datos
-  async function cargarDatos(desdeAuto = false) {
+  async function cargarDatos() {
     try {
       const res  = await fetch(CSV_URL);
       const text = await res.text();
 
-      // Si es recarga automática y el CSV es igual al anterior, no hacemos nada
-      if (desdeAuto && text === lastCsvRaw) {
-        console.log("Sin cambios en la base, no se actualiza el dashboard.");
-        return;
-      }
-      lastCsvRaw = text;
-
       const rows = parseCSV(text);
       if (!rows.length) return;
 
-      const header = rows[0].map(h => (h || "").trim());
-      const headerIndex = {};
-      header.forEach((name, idx) => {
-        const key = name.toUpperCase();
-        if (key) headerIndex[key] = idx;
-      });
+      const headers = rows[0].map(h => h.trim().toUpperCase());
+      const idx = name => headers.indexOf(name.toUpperCase());
 
-      function getVal(row, keys) {
-        if (!Array.isArray(keys)) keys = [keys];
-        for (let k of keys) {
-          const idx = headerIndex[k.toUpperCase()];
-          if (idx !== undefined) return row[idx] || "";
-        }
-        return "";
+      const iRUT        = idx("RUT");
+      const iNOMBRE     = idx("NOMBRE");
+      const iFECHA      = idx("FECHA");
+      const iCARGO      = idx("CARGO");
+      const iEQUIPO     = idx("EQUIPO");
+      const iCONTRATO   = idx("CONTRATO");
+      const iINSTRUCTOR = idx("INSTRUCTOR");
+      const iTOTAL      = idx("TOTALPUNTOS");
+      const iNOTA       = idx("NOTAFINAL");
+
+      if ([iRUT,iNOMBRE,iTOTAL,iNOTA].some(i => i === -1)) {
+        console.error("No se encontraron todas las columnas necesarias.");
+        alert("Faltan columnas requeridas en la hoja (RUT, NOMBRE, TOTALPUNTOS, NOTAFINAL).");
+        return;
       }
 
-      const idxRUT = headerIndex["RUT"];
-      const idxNOMBRE = headerIndex["NOMBRE"];
+      const dataRows = rows.slice(1).filter(r => r[iRUT] && r[iRUT].trim() !== "");
 
-      const dataRows = rows.slice(1).filter(row => {
-        if (!row || row.length === 0) return false;
-        const rut = idxRUT !== undefined ? (row[idxRUT] || "") : "";
-        const nombre = idxNOMBRE !== undefined ? (row[idxNOMBRE] || "") : "";
-        return rut.trim() !== "" || nombre.trim() !== "";
-      });
+      registrosBase = dataRows.map(r => ({
+        rut:        (r[iRUT]        || "").trim(),
+        nombre:     (r[iNOMBRE]     || "").trim(),
+        fecha:      (r[iFECHA]      || "").trim(),
+        cargo:      (r[iCARGO]      || "").trim(),
+        equipo:     (r[iEQUIPO]     || "").trim(),
+        contrato:   (r[iCONTRATO]   || "").trim(),
+        instructor: (r[iINSTRUCTOR] || "").trim(),
+        totalPuntos: Number((r[iTOTAL] || "0").toString().replace(",", ".")) || 0,
+        notaFinal:   Number((r[iNOTA]  || "0").toString().replace(",", ".")) || 0
+      }));
 
-      registrosBase = dataRows.map(row => {
-        return {
-          rut:        getVal(row, "RUT"),
-          nombre:     getVal(row, "NOMBRE"),
-          fecha:      getVal(row, "FECHA"),
-          cargo:      getVal(row, "CARGO"),
-          equipo:     getVal(row, "EQUIPO"),
-          contrato:   getVal(row, "CONTRATO"),
-          instructor: getVal(row, "INSTRUCTOR"),
-          totalPuntos: Number(getVal(row, "TOTAL PUNTOS") || 0),
-          notaFinal:   Number(getVal(row, "NOTA FINAL") || 0)
-        };
-      });
-
-      console.log(
-        desdeAuto
-          ? "Registros recargados automáticamente: " + registrosBase.length
-          : "Registros cargados: " + registrosBase.length
-      );
+      console.log("Registros cargados:", registrosBase.length);
 
       poblarFiltros(registrosBase);
-      aplicarFiltros(); // respeta los filtros actuales
+      aplicarFiltros();
 
     } catch (err) {
       console.error("Error cargando datos:", err);
-      if (!desdeAuto) {
-        alert("No se pudo leer la base desde Google Sheets.");
-      }
+      alert("No se pudo leer la base desde Google Sheets.");
     }
   }
 
   function poblarFiltros(reg) {
-    const selectEquipo = document.getElementById("filtro-equipo");
-    const selectInstructor = document.getElementById("filtro-instructor");
-    const selectContrato = document.getElementById("filtro-contrato");
+    const selEquipo     = document.getElementById("filtro-equipo");
+    const selContrato   = document.getElementById("filtro-contrato");
+    const selInstructor = document.getElementById("filtro-instructor");
 
-    const valorEquipo = selectEquipo.value || "TODOS";
-    const valorInstructor = selectInstructor.value || "TODOS";
-    const valorContrato = selectContrato.value || "TODOS";
+    const fillSelect = (select, values) => {
+      select.innerHTML = '<option value="TODOS">Todos</option>';
+      Array.from(new Set(values.filter(v => v))).sort()
+        .forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          select.appendChild(opt);
+        });
+    };
 
-    // Equipos
-    selectEquipo.innerHTML = '<option value="TODOS">Todos</option>';
-    const equipos = Array.from(new Set(reg.map(r => r.equipo || "Sin dato"))).sort();
-    equipos.forEach(eq => {
-      const opt = document.createElement("option");
-      opt.value = eq;
-      opt.textContent = eq;
-      selectEquipo.appendChild(opt);
-    });
-
-    // Instructores
-    selectInstructor.innerHTML = '<option value="TODOS">Todos</option>';
-    const instructores = Array.from(new Set(reg.map(r => r.instructor || "Sin dato"))).sort();
-    instructores.forEach(inst => {
-      const opt = document.createElement("option");
-      opt.value = inst;
-      opt.textContent = inst;
-      selectInstructor.appendChild(opt);
-    });
-
-    // Contratos
-    selectContrato.innerHTML = '<option value="TODOS">Todos</option>';
-    const contratos = Array.from(new Set(reg.map(r => r.contrato || "Sin dato"))).sort();
-    contratos.forEach(con => {
-      const opt = document.createElement("option");
-      opt.value = con;
-      opt.textContent = con;
-      selectContrato.appendChild(opt);
-    });
-
-    // Mantener selección si sigue existiendo
-    if ([...selectEquipo.options].some(o => o.value === valorEquipo)) {
-      selectEquipo.value = valorEquipo;
-    }
-    if ([...selectInstructor.options].some(o => o.value === valorInstructor)) {
-      selectInstructor.value = valorInstructor;
-    }
-    if ([...selectContrato.options].some(o => o.value === valorContrato)) {
-      selectContrato.value = valorContrato;
-    }
+    fillSelect(selEquipo,     reg.map(r => r.equipo));
+    fillSelect(selContrato,   reg.map(r => r.contrato));
+    fillSelect(selInstructor, reg.map(r => r.instructor));
   }
 
   function aplicarFiltros() {
     if (!registrosBase.length) return;
 
-    const rutBusqueda   = document.getElementById("filtro-rut").value.trim();
-    const equipoSel     = document.getElementById("filtro-equipo").value;
-    const instrSel      = document.getElementById("filtro-instructor").value;
-    const contratoSel   = document.getElementById("filtro-contrato").value;
+    const rutBusqueda = document.getElementById("filtro-rut").value.trim().toLowerCase();
+    const equipoSel   = document.getElementById("filtro-equipo").value;
+    const contratoSel = document.getElementById("filtro-contrato").value;
+    const instrSel    = document.getElementById("filtro-instructor").value;
 
     let datos = registrosBase.slice();
 
     if (rutBusqueda) {
-      const rutLower = rutBusqueda.toLowerCase();
       datos = datos.filter(r =>
-        (r.rut || "").toLowerCase().includes(rutLower)
+        (r.rut || "").toLowerCase().includes(rutBusqueda)
       );
     }
 
     if (equipoSel !== "TODOS") {
       datos = datos.filter(r => r.equipo === equipoSel);
     }
-
-    if (instrSel !== "TODOS") {
-      datos = datos.filter(r => r.instructor === instrSel);
-    }
-
     if (contratoSel !== "TODOS") {
       datos = datos.filter(r => r.contrato === contratoSel);
+    }
+    if (instrSel !== "TODOS") {
+      datos = datos.filter(r => r.instructor === instrSel);
     }
 
     registrosActuales = datos;
@@ -627,8 +525,8 @@
   function limpiarFiltros() {
     document.getElementById("filtro-rut").value = "";
     document.getElementById("filtro-equipo").value = "TODOS";
-    document.getElementById("filtro-instructor").value = "TODOS";
     document.getElementById("filtro-contrato").value = "TODOS";
+    document.getElementById("filtro-instructor").value = "TODOS";
     aplicarFiltros();
   }
 
@@ -637,23 +535,23 @@
   }
 
   function actualizarKPIs(reg) {
-    const total = reg.length;
-    const sumaNotas = reg.reduce((s, r) => s + (r.notaFinal || 0), 0);
-    const sumaPuntos = reg.reduce((s, r) => s + (r.totalPuntos || 0), 0);
+    const totalReg = reg.length;
+    const totalPuntos = reg.reduce((s, r) => s + (r.totalPuntos || 0), 0);
+    const totalNota   = reg.reduce((s, r) => s + (r.notaFinal   || 0), 0);
+
+    const promPuntos = totalReg ? (totalPuntos / totalReg).toFixed(1) : "0.0";
+    const promNota   = totalReg ? (totalNota   / totalReg).toFixed(1) : "0.0";
 
     const operadoresUnicos = new Set(reg.map(r => r.rut || r.nombre)).size;
-    const equipos = new Set(reg.map(r => r.equipo || "").filter(x => x !== ""));
-    const contratos = new Set(reg.map(r => r.contrato || "").filter(x => x !== ""));
+    const equipos          = new Set(reg.map(r => r.equipo).filter(Boolean)).size;
+    const contratos        = new Set(reg.map(r => r.contrato).filter(Boolean)).size;
 
-    const promedioNota = total ? (sumaNotas / total).toFixed(2) : "0.00";
-    const promedioPuntos = total ? (sumaPuntos / total).toFixed(1) : "0.0";
-
-    document.getElementById("kpi-total-registros").textContent   = total;
+    document.getElementById("kpi-registros").textContent         = totalReg;
     document.getElementById("kpi-operadores-unicos").textContent = operadoresUnicos;
-    document.getElementById("kpi-promedio-nota").textContent     = promedioNota;
-    document.getElementById("kpi-promedio-puntos").textContent   = promedioPuntos;
-    document.getElementById("kpi-equipos").textContent           = equipos.size;
-    document.getElementById("kpi-contratos").textContent         = contratos.size;
+    document.getElementById("kpi-prom-nota").textContent         = promNota;
+    document.getElementById("kpi-prom-puntos").textContent       = promPuntos;
+    document.getElementById("kpi-equipos").textContent           = equipos;
+    document.getElementById("kpi-contratos").textContent         = contratos;
   }
 
   function dibujarTabla(reg) {
@@ -676,62 +574,42 @@
     });
   }
 
-  function agruparPromedio(reg, clave, campo) {
+  function agruparPromedio(reg, claveGrupo, claveValor) {
     const map = {};
     reg.forEach(r => {
-      const key = r[clave] || "Sin dato";
-      if (!map[key]) map[key] = { suma: 0, n: 0 };
-      const val = Number(r[campo] || 0);
-      map[key].suma += val;
-      map[key].n += 1;
+      const g = r[claveGrupo] || "Sin dato";
+      const v = Number(r[claveValor]) || 0;
+      if (!map[g]) map[g] = { suma: 0, n: 0 };
+      map[g].suma += v;
+      map[g].n += 1;
     });
     const labels = Object.keys(map);
     const values = labels.map(l => map[l].n ? map[l].suma / map[l].n : 0);
     return { labels, values };
   }
 
-  function agruparConteo(reg, clave) {
-    const map = {};
-    reg.forEach(r => {
-      const key = r[clave] || "Sin dato";
-      if (!map[key]) map[key] = 0;
-      map[key] += 1;
-    });
-    const labels = Object.keys(map);
-    const values = labels.map(l => map[l]);
-    return { labels, values };
-  }
-
   function dibujarGraficos(reg) {
-    const palette = {
-      primary: "#d9232d",
-      primaryLight: "#f7c1c4",
-      blue: "#3498db",
-      blueLight: "#d6e9f8",
-      orange: "#f5a623",
-      green: "#2ecc71"
-    };
-
-    // Datos para gráficos
     const labelsOperador = reg.map(r => r.nombre || r.rut);
-    const notasOperador = reg.map(r => r.notaFinal || 0);
+    const notasOperador  = reg.map(r => r.notaFinal || 0);
     const puntosOperador = reg.map(r => r.totalPuntos || 0);
+    const notaPorEquipo  = agruparPromedio(reg, "equipo", "notaFinal");
 
-    const notaPorEquipo = agruparPromedio(reg, "equipo", "notaFinal");
-    const notaPorInstructor = agruparPromedio(reg, "instructor", "notaFinal");
-    const cantidadPorEquipo = agruparConteo(reg, "equipo");
+    const ctxNotaOp   = document.getElementById("chartNotaOperador").getContext("2d");
+    const ctxPtosOp   = document.getElementById("chartPuntosOperador").getContext("2d");
+    const ctxNotaEq   = document.getElementById("chartNotaEquipo").getContext("2d");
 
-    const ctxNotaOp = document.getElementById("chartNotaOperador").getContext("2d");
-    const ctxPuntosOp = document.getElementById("chartPuntosOperador").getContext("2d");
-    const ctxNotaEq = document.getElementById("chartNotaEquipo").getContext("2d");
-    const ctxNotaInst = document.getElementById("chartNotaInstructor").getContext("2d");
-    const ctxCantEq = document.getElementById("chartCantidadEquipo").getContext("2d");
-
-    if (chartNotaOperador) chartNotaOperador.destroy();
+    if (chartNotaOperador)   chartNotaOperador.destroy();
     if (chartPuntosOperador) chartPuntosOperador.destroy();
-    if (chartNotaEquipo) chartNotaEquipo.destroy();
-    if (chartNotaInstructor) chartNotaInstructor.destroy();
-    if (chartCantidadEquipo) chartCantidadEquipo.destroy();
+    if (chartNotaEquipo)     chartNotaEquipo.destroy();
+
+    const palette = {
+      red: "#d9232d",
+      redSoft: "#ffd6da",
+      blue: "#3498db",
+      blueSoft: "#d6e9f8",
+      green: "#2ecc71",
+      greenSoft: "#d5f5e3"
+    };
 
     chartNotaOperador = new Chart(ctxNotaOp, {
       type: "bar",
@@ -740,35 +618,33 @@
         datasets: [{
           label: "Nota final",
           data: notasOperador,
-          backgroundColor: palette.blueLight,
+          backgroundColor: palette.blueSoft,
           borderColor: palette.blue,
           borderWidth: 2
         }]
       },
       options: {
         scales: {
-          x: { ticks: { maxRotation: 45, minRotation: 45 } },
-          y: { beginAtZero: true }
+          y: { beginAtZero: true, max: 100, ticks: { precision: 0 } }
         }
       }
     });
 
-    chartPuntosOperador = new Chart(ctxPuntosOp, {
+    chartPuntosOperador = new Chart(ctxPtosOp, {
       type: "bar",
       data: {
         labels: labelsOperador,
         datasets: [{
           label: "Total puntos",
           data: puntosOperador,
-          backgroundColor: palette.primarySoft,
-          borderColor: palette.primary,
+          backgroundColor: palette.redSoft,
+          borderColor: palette.red,
           borderWidth: 2
         }]
       },
       options: {
         scales: {
-          x: { ticks: { maxRotation: 45, minRotation: 45 } },
-          y: { beginAtZero: true }
+          y: { beginAtZero: true, ticks: { precision: 0 } }
         }
       }
     });
@@ -780,55 +656,14 @@
         datasets: [{
           label: "Promedio nota",
           data: notaPorEquipo.values,
-          backgroundColor: palette.green,
-          borderColor: "#1e874b",
+          backgroundColor: palette.greenSoft,
+          borderColor: palette.green,
           borderWidth: 2
         }]
       },
       options: {
         scales: {
-          x: { ticks: { maxRotation: 45, minRotation: 45 } },
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    chartNotaInstructor = new Chart(ctxNotaInst, {
-      type: "bar",
-      data: {
-        labels: notaPorInstructor.labels,
-        datasets: [{
-          label: "Promedio nota",
-          data: notaPorInstructor.values,
-          backgroundColor: palette.orange,
-          borderColor: "#c97f14",
-          borderWidth: 2
-        }]
-      },
-      options: {
-        scales: {
-          x: { ticks: { maxRotation: 45, minRotation: 45 } },
-          y: { beginAtZero: true }
-        }
-      }
-    });
-
-    chartCantidadEquipo = new Chart(ctxCantEq, {
-      type: "bar",
-      data: {
-        labels: cantidadPorEquipo.labels,
-        datasets: [{
-          label: "Cantidad de registros",
-          data: cantidadPorEquipo.values,
-          backgroundColor: palette.primarySoft,
-          borderColor: palette.primary,
-          borderWidth: 2
-        }]
-      },
-      options: {
-        scales: {
-          x: { ticks: { maxRotation: 45, minRotation: 45 } },
-          y: { beginAtZero: true }
+          y: { beginAtZero: true, max: 100, ticks: { precision: 0 } }
         }
       }
     });
