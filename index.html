@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard Evaluaciones Operadores</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #d9232d;  /* rojo Xtreme */
+      --primary-soft: #ffe5e7;
+      --dark: #222;
+      --bg: #f2f4f7;
+      --card-bg: #ffffff;
+      --text-main: #222;
+      --text-muted: #777;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+
+    header {
+      background: var(--dark);
+      color: #fff;
+      padding: 10px 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    header > div {
+      max-width: 1500px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    header img {
+      height: 55px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header .subtitle {
+      font-size: 13px;
+      color: #ccc;
+      margin-top: 3px;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: 15px auto 40px;
+      padding: 0 10px 20px;
+    }
+
+    /* Barra de filtros */
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 15px;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
+    .filters-bar .group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filters-bar label {
+      font-weight: bold;
+      margin-right: 2px;
+    }
+    .filters-bar input,
+    .filters-bar select {
+      padding: 5px 7px;
+      font-size: 13px;
+      border-radius: 5px;
+      border: 1px solid #d0d4da;
+      min-width: 140px;
+    }
+    .filters-bar button {
+      padding: 6px 11px;
+      font-size: 13px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.05s ease, box-shadow 0.1s ease;
+    }
+    .filters-bar button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+    .btn-pdf {
+      background: #d9534f;
+      color: #fff;
+    }
+
+    .filters-bar .right {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* KPIs */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary);
+    }
+    .kpi-title {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 21px;
+      font-weight: bold;
+    }
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* GRÁFICOS */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card.wide {
+      grid-column: 1 / -1;   /* ocupa todo el ancho */
+      height: 420px;
+    }
+
+    .chart-card h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .chart-card canvas {
+      width: 100% !important;
+      height: calc(100% - 20px) !important;
+    }
+
+    @media (max-width: 950px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .chart-card,
+      .chart-card.wide {
+        grid-column: 1 / -1;
+        height: 360px;
+      }
+    }
+
+    /* Tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 5px;
+      font-size: 12px;
+      background: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+    th {
+      background: #f4f6f8;
+      text-align: left;
+    }
+    tr:nth-child(even) td {
+      background: #fafafa;
+    }
+    tr:hover td {
+      background: #e9f3ff;
+    }
+
+    /* Impresión */
+    @media print {
+      body {
+        background: #fff;
+      }
+      header {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .filters-bar {
+        display: none;
+      }
+      button {
+        display: none;
+      }
+      .container {
+        max-width: 100%;
+        margin: 0;
+        padding: 0 5mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <img src="logo_Xtreme.png" alt="Xtreme Mining" />
+    <div>
+      <h1>Dashboard Evaluaciones – Operadores</h1>
+      <div class="subtitle">
+        Creado por Bernardo Ojeda Molina – Jefe de Innovación y Formación
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- BARRA DE FILTROS -->
+  <div class="filters-bar">
+    <div class="group">
+      <label for="filtro-rut">RUT:</label>
+      <input id="filtro-rut" type="text" placeholder="Ej: 12377087-0">
+      <button class="btn-primary" onclick="aplicarFiltros()">Buscar</button>
+    </div>
+
+    <div class="group">
+      <label for="filtro-equipo">Equipo:</label>
+      <select id="filtro-equipo" onchange="aplicarFiltros()">
+        <option value="TODOS">Todos</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label for="filtro-instructor">Instructor:</label>
+      <select id="filtro-instructor" onchange="aplicarFiltros()">
+        <option value="TODOS">Todos</option>
+      </select>
+    </div>
+
+    <div class="group">
+      <label for="filtro-contrato">Contrato:</label>
+      <select id="filtro-contrato" onchange="aplicarFiltros()">
+        <option value="TODOS">Todos</option>
+      </select>
+    </div>
+
+    <div class="right">
+      <button class="btn-secondary" onclick="limpiarFiltros()">Limpiar filtros</button>
+      <button class="btn-pdf" onclick="exportarPDF()">Exportar PDF</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Registros de evaluación</div>
+      <div class="kpi-value" id="kpi-total-registros">0</div>
+      <div class="kpi-sub">Total de filas con datos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Operadores únicos</div>
+      <div class="kpi-value" id="kpi-operadores-unicos">0</div>
+      <div class="kpi-sub">Por RUT / Nombre</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Promedio Nota Final</div>
+      <div class="kpi-value" id="kpi-promedio-nota">0.0</div>
+      <div class="kpi-sub">Columna NOTA FINAL</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Promedio Total Puntos</div>
+      <div class="kpi-value" id="kpi-promedio-puntos">0.0</div>
+      <div class="kpi-sub">Columna TOTAL PUNTOS</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Equipos distintos</div>
+      <div class="kpi-value" id="kpi-equipos">0</div>
+      <div class="kpi-sub">Cantidad de equipos evaluados</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Contratos distintos</div>
+      <div class="kpi-value" id="kpi-contratos">0</div>
+      <div class="kpi-sub">Cantidad de contratos</div>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="charts-grid">
+    <div class="chart-card wide">
+      <h3>Nota final por operador</h3>
+      <canvas id="chartNotaOperador"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Total puntos por operador</h3>
+      <canvas id="chartPuntosOperador"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Promedio nota por equipo</h3>
+      <canvas id="chartNotaEquipo"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Promedio nota por instructor</h3>
+      <canvas id="chartNotaInstructor"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Cantidad de registros por equipo</h3>
+      <canvas id="chartCantidadEquipo"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLA DETALLE -->
+  <table id="tabla-detalle">
+    <thead>
+      <tr>
+        <th>RUT</th>
+        <th>Nombre</th>
+        <th>Fecha</th>
+        <th>Cargo</th>
+        <th>Equipo</th>
+        <th>Contrato</th>
+        <th>Instructor</th>
+        <th>Total puntos</th>
+        <th>Nota final</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+  // URL CSV de la hoja publicada (ya en formato output=csv)
+  const CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv2nHTgf2UJjzyxQs0e79UCLz2lRIyGO9AR4y_2p9Nq61lQ0sErMa9IakEDKy_6b4F1V2shvuu3AZQ/pub?gid=0&single=true&output=csv";
+
+  let registrosBase = [];
+  let registrosActuales = [];
+
+  let chartNotaOperador, chartPuntosOperador, chartNotaEquipo, chartNotaInstructor, chartCantidadEquipo;
+
+  // Guarda la última versión cruda del CSV para detectar cambios
+  let lastCsvRaw = "";
+
+  // CONFIGURACIÓN GLOBAL CHART.JS (mejora estética)
+  Chart.defaults.maintainAspectRatio = false;
+  Chart.defaults.font.family = "Arial, sans-serif";
+  Chart.defaults.plugins.legend.position = "bottom";
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.legend.labels.pointStyle = "circle";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    cargarDatos(false);        // primera carga
+    iniciarAutoActualizacion(); // luego refresca solo
+  });
+
+  // Auto-actualización cada X ms
+  function iniciarAutoActualizacion() {
+    const INTERVALO_MS = 60000;  // 60 segundos; puedes bajarlo a 15000 si quieres 15 s
+    setInterval(() => {
+      cargarDatos(true);       // true = recarga automática
+    }, INTERVALO_MS);
+  }
+
+  // Parser CSV simple con comillas
+  function parseCSV(text) {
+    const rows = [];
+    let current = [];
+    let value = "";
+    let insideQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const next = text[i + 1];
+
+      if (insideQuotes) {
+        if (ch === '"' && next === '"') {
+          value += '"';
+          i++;
+        } else if (ch === '"') {
+          insideQuotes = false;
+        } else {
+          value += ch;
+        }
+      } else {
+        if (ch === '"') {
+          insideQuotes = true;
+        } else if (ch === ",") {
+          current.push(value);
+          value = "";
+        } else if (ch === "\r") {
+          // nada
+        } else if (ch === "\n") {
+          current.push(value);
+          rows.push(current);
+          current = [];
+          value = "";
+        } else {
+          value += ch;
+        }
+      }
+    }
+    if (value.length > 0 || current.length > 0) {
+      current.push(value);
+      rows.push(current);
+    }
+    return rows;
+  }
+
+  // Carga de datos
+  async function cargarDatos(desdeAuto = false) {
+    try {
+      const res  = await fetch(CSV_URL);
+      const text = await res.text();
+
+      // Si es recarga automática y el CSV es igual al anterior, no hacemos nada
+      if (desdeAuto && text === lastCsvRaw) {
+        console.log("Sin cambios en la base, no se actualiza el dashboard.");
+        return;
+      }
+      lastCsvRaw = text;
+
+      const rows = parseCSV(text);
+      if (!rows.length) return;
+
+      const header = rows[0].map(h => (h || "").trim());
+      const headerIndex = {};
+      header.forEach((name, idx) => {
+        const key = name.toUpperCase();
+        if (key) headerIndex[key] = idx;
+      });
+
+      function getVal(row, keys) {
+        if (!Array.isArray(keys)) keys = [keys];
+        for (let k of keys) {
+          const idx = headerIndex[k.toUpperCase()];
+          if (idx !== undefined) return row[idx] || "";
+        }
+        return "";
+      }
+
+      const idxRUT = headerIndex["RUT"];
+      const idxNOMBRE = headerIndex["NOMBRE"];
+
+      const dataRows = rows.slice(1).filter(row => {
+        if (!row || row.length === 0) return false;
+        const rut = idxRUT !== undefined ? (row[idxRUT] || "") : "";
+        const nombre = idxNOMBRE !== undefined ? (row[idxNOMBRE] || "") : "";
+        return rut.trim() !== "" || nombre.trim() !== "";
+      });
+
+      registrosBase = dataRows.map(row => {
+        return {
+          rut:        getVal(row, "RUT"),
+          nombre:     getVal(row, "NOMBRE"),
+          fecha:      getVal(row, "FECHA"),
+          cargo:      getVal(row, "CARGO"),
+          equipo:     getVal(row, "EQUIPO"),
+          contrato:   getVal(row, "CONTRATO"),
+          instructor: getVal(row, "INSTRUCTOR"),
+          totalPuntos: Number(getVal(row, "TOTAL PUNTOS") || 0),
+          notaFinal:   Number(getVal(row, "NOTA FINAL") || 0)
+        };
+      });
+
+      console.log(
+        desdeAuto
+          ? "Registros recargados automáticamente: " + registrosBase.length
+          : "Registros cargados: " + registrosBase.length
+      );
+
+      poblarFiltros(registrosBase);
+      aplicarFiltros(); // respeta los filtros actuales
+
+    } catch (err) {
+      console.error("Error cargando datos:", err);
+      if (!desdeAuto) {
+        alert("No se pudo leer la base desde Google Sheets.");
+      }
+    }
+  }
+
+  function poblarFiltros(reg) {
+    const selectEquipo = document.getElementById("filtro-equipo");
+    const selectInstructor = document.getElementById("filtro-instructor");
+    const selectContrato = document.getElementById("filtro-contrato");
+
+    const valorEquipo = selectEquipo.value || "TODOS";
+    const valorInstructor = selectInstructor.value || "TODOS";
+    const valorContrato = selectContrato.value || "TODOS";
+
+    // Equipos
+    selectEquipo.innerHTML = '<option value="TODOS">Todos</option>';
+    const equipos = Array.from(new Set(reg.map(r => r.equipo || "Sin dato"))).sort();
+    equipos.forEach(eq => {
+      const opt = document.createElement("option");
+      opt.value = eq;
+      opt.textContent = eq;
+      selectEquipo.appendChild(opt);
+    });
+
+    // Instructores
+    selectInstructor.innerHTML = '<option value="TODOS">Todos</option>';
+    const instructores = Array.from(new Set(reg.map(r => r.instructor || "Sin dato"))).sort();
+    instructores.forEach(inst => {
+      const opt = document.createElement("option");
+      opt.value = inst;
+      opt.textContent = inst;
+      selectInstructor.appendChild(opt);
+    });
+
+    // Contratos
+    selectContrato.innerHTML = '<option value="TODOS">Todos</option>';
+    const contratos = Array.from(new Set(reg.map(r => r.contrato || "Sin dato"))).sort();
+    contratos.forEach(con => {
+      const opt = document.createElement("option");
+      opt.value = con;
+      opt.textContent = con;
+      selectContrato.appendChild(opt);
+    });
+
+    // Mantener selección si sigue existiendo
+    if ([...selectEquipo.options].some(o => o.value === valorEquipo)) {
+      selectEquipo.value = valorEquipo;
+    }
+    if ([...selectInstructor.options].some(o => o.value === valorInstructor)) {
+      selectInstructor.value = valorInstructor;
+    }
+    if ([...selectContrato.options].some(o => o.value === valorContrato)) {
+      selectContrato.value = valorContrato;
+    }
+  }
+
+  function aplicarFiltros() {
+    if (!registrosBase.length) return;
+
+    const rutBusqueda   = document.getElementById("filtro-rut").value.trim();
+    const equipoSel     = document.getElementById("filtro-equipo").value;
+    const instrSel      = document.getElementById("filtro-instructor").value;
+    const contratoSel   = document.getElementById("filtro-contrato").value;
+
+    let datos = registrosBase.slice();
+
+    if (rutBusqueda) {
+      const rutLower = rutBusqueda.toLowerCase();
+      datos = datos.filter(r =>
+        (r.rut || "").toLowerCase().includes(rutLower)
+      );
+    }
+
+    if (equipoSel !== "TODOS") {
+      datos = datos.filter(r => r.equipo === equipoSel);
+    }
+
+    if (instrSel !== "TODOS") {
+      datos = datos.filter(r => r.instructor === instrSel);
+    }
+
+    if (contratoSel !== "TODOS") {
+      datos = datos.filter(r => r.contrato === contratoSel);
+    }
+
+    registrosActuales = datos;
+
+    actualizarKPIs(registrosActuales);
+    dibujarTabla(registrosActuales);
+    dibujarGraficos(registrosActuales);
+  }
+
+  function limpiarFiltros() {
+    document.getElementById("filtro-rut").value = "";
+    document.getElementById("filtro-equipo").value = "TODOS";
+    document.getElementById("filtro-instructor").value = "TODOS";
+    document.getElementById("filtro-contrato").value = "TODOS";
+    aplicarFiltros();
+  }
+
+  function exportarPDF() {
+    window.print();
+  }
+
+  function actualizarKPIs(reg) {
+    const total = reg.length;
+    const sumaNotas = reg.reduce((s, r) => s + (r.notaFinal || 0), 0);
+    const sumaPuntos = reg.reduce((s, r) => s + (r.totalPuntos || 0), 0);
+
+    const operadoresUnicos = new Set(reg.map(r => r.rut || r.nombre)).size;
+    const equipos = new Set(reg.map(r => r.equipo || "").filter(x => x !== ""));
+    const contratos = new Set(reg.map(r => r.contrato || "").filter(x => x !== ""));
+
+    const promedioNota = total ? (sumaNotas / total).toFixed(2) : "0.00";
+    const promedioPuntos = total ? (sumaPuntos / total).toFixed(1) : "0.0";
+
+    document.getElementById("kpi-total-registros").textContent   = total;
+    document.getElementById("kpi-operadores-unicos").textContent = operadoresUnicos;
+    document.getElementById("kpi-promedio-nota").textContent     = promedioNota;
+    document.getElementById("kpi-promedio-puntos").textContent   = promedioPuntos;
+    document.getElementById("kpi-equipos").textContent           = equipos.size;
+    document.getElementById("kpi-contratos").textContent         = contratos.size;
+  }
+
+  function dibujarTabla(reg) {
+    const tbody = document.querySelector("#tabla-detalle tbody");
+    tbody.innerHTML = "";
+    reg.forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.rut}</td>
+        <td>${r.nombre}</td>
+        <td>${r.fecha}</td>
+        <td>${r.cargo}</td>
+        <td>${r.equipo}</td>
+        <td>${r.contrato}</td>
+        <td>${r.instructor}</td>
+        <td>${r.totalPuntos}</td>
+        <td>${r.notaFinal}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function agruparPromedio(reg, clave, campo) {
+    const map = {};
+    reg.forEach(r => {
+      const key = r[clave] || "Sin dato";
+      if (!map[key]) map[key] = { suma: 0, n: 0 };
+      const val = Number(r[campo] || 0);
+      map[key].suma += val;
+      map[key].n += 1;
+    });
+    const labels = Object.keys(map);
+    const values = labels.map(l => map[l].n ? map[l].suma / map[l].n : 0);
+    return { labels, values };
+  }
+
+  function agruparConteo(reg, clave) {
+    const map = {};
+    reg.forEach(r => {
+      const key = r[clave] || "Sin dato";
+      if (!map[key]) map[key] = 0;
+      map[key] += 1;
+    });
+    const labels = Object.keys(map);
+    const values = labels.map(l => map[l]);
+    return { labels, values };
+  }
+
+  function dibujarGraficos(reg) {
+    const palette = {
+      primary: "#d9232d",
+      primaryLight: "#f7c1c4",
+      blue: "#3498db",
+      blueLight: "#d6e9f8",
+      orange: "#f5a623",
+      green: "#2ecc71"
+    };
+
+    // Datos para gráficos
+    const labelsOperador = reg.map(r => r.nombre || r.rut);
+    const notasOperador = reg.map(r => r.notaFinal || 0);
+    const puntosOperador = reg.map(r => r.totalPuntos || 0);
+
+    const notaPorEquipo = agruparPromedio(reg, "equipo", "notaFinal");
+    const notaPorInstructor = agruparPromedio(reg, "instructor", "notaFinal");
+    const cantidadPorEquipo = agruparConteo(reg, "equipo");
+
+    const ctxNotaOp = document.getElementById("chartNotaOperador").getContext("2d");
+    const ctxPuntosOp = document.getElementById("chartPuntosOperador").getContext("2d");
+    const ctxNotaEq = document.getElementById("chartNotaEquipo").getContext("2d");
+    const ctxNotaInst = document.getElementById("chartNotaInstructor").getContext("2d");
+    const ctxCantEq = document.getElementById("chartCantidadEquipo").getContext("2d");
+
+    if (chartNotaOperador) chartNotaOperador.destroy();
+    if (chartPuntosOperador) chartPuntosOperador.destroy();
+    if (chartNotaEquipo) chartNotaEquipo.destroy();
+    if (chartNotaInstructor) chartNotaInstructor.destroy();
+    if (chartCantidadEquipo) chartCantidadEquipo.destroy();
+
+    chartNotaOperador = new Chart(ctxNotaOp, {
+      type: "bar",
+      data: {
+        labels: labelsOperador,
+        datasets: [{
+          label: "Nota final",
+          data: notasOperador,
+          backgroundColor: palette.blueLight,
+          borderColor: palette.blue,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 45 } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    chartPuntosOperador = new Chart(ctxPuntosOp, {
+      type: "bar",
+      data: {
+        labels: labelsOperador,
+        datasets: [{
+          label: "Total puntos",
+          data: puntosOperador,
+          backgroundColor: palette.primarySoft,
+          borderColor: palette.primary,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 45 } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    chartNotaEquipo = new Chart(ctxNotaEq, {
+      type: "bar",
+      data: {
+        labels: notaPorEquipo.labels,
+        datasets: [{
+          label: "Promedio nota",
+          data: notaPorEquipo.values,
+          backgroundColor: palette.green,
+          borderColor: "#1e874b",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 45 } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    chartNotaInstructor = new Chart(ctxNotaInst, {
+      type: "bar",
+      data: {
+        labels: notaPorInstructor.labels,
+        datasets: [{
+          label: "Promedio nota",
+          data: notaPorInstructor.values,
+          backgroundColor: palette.orange,
+          borderColor: "#c97f14",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 45 } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    chartCantidadEquipo = new Chart(ctxCantEq, {
+      type: "bar",
+      data: {
+        labels: cantidadPorEquipo.labels,
+        datasets: [{
+          label: "Cantidad de registros",
+          data: cantidadPorEquipo.values,
+          backgroundColor: palette.primarySoft,
+          borderColor: palette.primary,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 45 } },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
