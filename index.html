@@ -118,6 +118,8 @@
 
     <button class="btn btn-secondary" onclick="limpiarFiltros()">Limpiar filtros</button>
     <button class="btn btn-success" onclick="exportarPDF()">Exportar PDF</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('csvFiles').click()">Cargar CSV local</button>
+    <input id="csvFiles" type="file" accept=".csv,text/csv" multiple style="display:none" onchange="cargarCSVsLocales(this.files)" />
   </div>
 
   <div id="notice" class="notice"></div>
@@ -225,7 +227,7 @@
    ******************************************************************/
   const CSV_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv2nHTgf2UJjzyxQs0e79UCLz2lRIyGO9AR4y_2p9Nq61lQ0sErMa9IakEDKy_6b4F1V2shvuu3AZQ/pub?gid=0&single=true&output=csv",
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=0&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=764665870&single=true&output=csv",
   ];
 
   // Estado global
@@ -425,7 +427,7 @@
 
     } catch (err) {
       console.error("Error cargando datos:", err);
-      showNotice("Error al leer las bases. Revisa F12 → Console (posible link inválido o permisos).");
+      showNotice("Error al leer las bases (probable CORS/permisos). Si abriste el archivo como file://, prueba abrirlo con un servidor local (http://localhost) o usa el botón \"Cargar CSV local\".");
     }
   }
 
@@ -636,6 +638,39 @@
     });
 
     doc.save("dashboard_evaluaciones.pdf");
+  }
+
+
+  async function cargarCSVsLocales(fileList){
+    try{
+      hideNotice();
+      if(!fileList || !fileList.length){
+        showNotice("No seleccionaste archivos CSV.");
+        return;
+      }
+      const files = Array.from(fileList);
+      let todos = [];
+      for (let i=0;i<files.length;i++){
+        const f = files[i];
+        const txt = await f.text();
+        const rows = parseCSV(txt);
+        const mapped = mapearDesdeSheet(rows, { source: f.name || `CSV ${i+1}` });
+        console.log("CSV local", { archivo: f.name, filasCSV: rows.length, registrosMapeados: mapped.length });
+        todos = todos.concat(mapped);
+      }
+      registrosBase = todos;
+      console.log("Registros combinados (local) cargados:", registrosBase.length);
+      if (!registrosBase.length) {
+        showNotice("Cargó 0 registros desde CSV local. Revisa que existan columnas mínimas (RUT, NOMBRE, TOTALPUNTOS/TOTAL PUNTOS, NOTAFINAL/NOTA FINAL).");
+      } else {
+        hideNotice();
+      }
+      poblarFiltros(registrosBase);
+      aplicarFiltros();
+    } catch(err){
+      console.error("Error leyendo CSV local:", err);
+      showNotice("No pude leer tus CSV locales. Abre F12 → Console para ver el error.");
+    }
   }
 
   // Arranque
