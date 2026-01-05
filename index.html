@@ -7,6 +7,15 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // FIX: Chart.js siempre responsivo y sin forzar alto excesivo
+  if (window.Chart && Chart.defaults) {
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = false;
+    Chart.defaults.animation = false;
+  }
+</script>
+
   <!-- jsPDF + autotable -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.31/dist/jspdf.plugin.autotable.min.js"></script>
@@ -83,7 +92,35 @@
       .grid-charts { grid-template-columns: 1fr; }
       .grid-bottom { grid-template-columns: 1fr; }
     }
-  </style>
+  
+
+/* --- FIX: evitar desborde de gráficos (Chart.js) --- */
+.chart-card { overflow: hidden; }
+.chart-wrap{
+  position: relative;
+  width: 100%;
+  height: 340px;          /* altura estándar desktop */
+  min-height: 340px;
+}
+.chart-wrap.small{ height: 280px; min-height: 280px; }
+.chart-wrap.tall{ height: 420px; min-height: 420px; }
+
+.chart-wrap canvas{
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+@media (max-width: 1200px){
+  .chart-wrap{ height: 300px; min-height: 300px; }
+}
+@media (max-width: 768px){
+  .chart-wrap{ height: 260px; min-height: 260px; }
+}
+</style>
 </head>
 
 <body>
@@ -158,22 +195,22 @@
   </div>
 
   <div class="grid-charts">
-    <div class="card">
+    <div class="card chart-card">
       <h3>Nota final por operador (Top 20)</h3>
-      <canvas id="chartNotaOperador"></canvas>
+      <div class="chart-wrap"><canvas id="chartNotaOperador"></canvas></div>
     </div>
-    <div class="card">
+    <div class="card chart-card">
       <h3>Promedio nota por equipo</h3>
-      <canvas id="chartPromEquipo"></canvas>
+      <div class="chart-wrap"><canvas id="chartPromEquipo"></canvas></div>
     </div>
   </div>
 
   <div class="grid-bottom">
-    <div class="card">
+    <div class="card chart-card">
       <h3>Total puntos por operador (Top 20)</h3>
-      <canvas id="chartPuntosOperador"></canvas>
+      <div class="chart-wrap"><canvas id="chartPuntosOperador"></canvas></div>
     </div>
-    <div class="card">
+    <div class="card chart-card">
       <h3>Detalle de registros</h3>
 
       <div class="table-wrap">
@@ -228,6 +265,7 @@
   const CSV_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv2nHTgf2UJjzyxQs0e79UCLz2lRIyGO9AR4y_2p9Nq61lQ0sErMa9IakEDKy_6b4F1V2shvuu3AZQ/pub?gid=0&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=764665870&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=679076850&single=true&output=csv",
      ];
 
   // Estado global
