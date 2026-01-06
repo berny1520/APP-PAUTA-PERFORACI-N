@@ -126,8 +126,9 @@
 <body>
 <header>
   <div class="brand">
-    <div style="width:42px;height:42px;border-radius:8px;background:#fff;color:#111827;display:flex;align-items:center;justify-content:center;font-weight:900;">
-      X
+    <div style="width:48px;height:48px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+      <img id="logo_Xtreme.png" src="logo_Xtreme.png" alt="logo_Xtreme.png" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';" />
+      <div id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:#111827;font-weight:900;">LOGO</div>
     </div>
     <div>
       Dashboard Evaluaciones – Operadores
@@ -265,6 +266,7 @@
   const CSV_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv2nHTgf2UJjzyxQs0e79UCLz2lRIyGO9AR4y_2p9Nq61lQ0sErMa9IakEDKy_6b4F1V2shvuu3AZQ/pub?gid=0&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=764665870&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=679076850&single=true&output=csv",
      ];
 
   // Estado global
