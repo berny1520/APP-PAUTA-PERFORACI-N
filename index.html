@@ -130,6 +130,7 @@
       <img id="logo_Xtreme.png" src="logo_Xtreme.png" alt="logo_Xtreme.png" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';" />
       <div id="logoFallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:#111827;font-weight:900;">LOGO</div>
     </div>
+
     <div>
       Dashboard Evaluaciones – Operadores
       <small>Creado por Bernardo Ojeda Molina – Jefe de Innovación y Formación</small>
@@ -173,6 +174,17 @@
       <div class="value" id="kpiOperadores">0</div>
       <div class="sub">Por RUT / Nombre</div>
     </div>
+    <div class="kpi">
+      <div class="kpi-title">AVANCE DOTACIÓN</div>
+      <div class="kpi-value" id="kpiAvanceDotacion">0.0%</div>
+      <div class="kpi-sub" id="kpiDotacionTotal">Sobre dotación total 108</div>
+    </div>
+      <div class="control">
+        <label>Dotación total:</label>
+        <input id="dotacionInput" type="number" min="0" step="1" value="108"
+               oninput="localStorage.setItem('dotacionTotal', this.value); if (typeof aplicarFiltros==='function') aplicarFiltros();"
+               style="width:110px;" />
+      </div>
     <div class="kpi">
       <div class="label">Promedio nota final</div>
       <div class="value" id="kpiPromNota">0</div>
@@ -263,8 +275,6 @@
    *  Cómo obtenerlos:
    *  Google Sheets → Archivo → Publicar en la web → CSV → copiar link.
    ******************************************************************/
-  const DOTACION_TOTAL = 108;
-
   const CSV_URLS = [
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSv2nHTgf2UJjzyxQs0e79UCLz2lRIyGO9AR4y_2p9Nq61lQ0sErMa9IakEDKy_6b4F1V2shvuu3AZQ/pub?gid=0&single=true&output=csv",
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWu_RoFhoxPb3mLa3G8OhapNtWzLoIYMtdVzTJJzBLeEyxsOYtJRmtycgL6kpsE3Pkww3OwQow8baM/pub?gid=764665870&single=true&output=csv",
@@ -435,7 +445,10 @@
   }
 
   async function cargarDatosMultiples() {
-    if (!validarURLs()) return;
+    
+    const dotInpInit = document.getElementById("dotacionInput");
+    if (dotInpInit) { dotInpInit.value = (localStorage.getItem("dotacionTotal") || dotInpInit.value || "108"); }
+if (!validarURLs()) return;
 
     try {
       const resultados = await Promise.all(
@@ -535,6 +548,16 @@
 
     const uniqOp = new Set(reg.map(r => (r.rut || "") + "|" + (r.nombre || "")));
     document.getElementById("kpiOperadores").textContent = uniqOp.size.toString();
+    // Avance dotación = operadores únicos / dotación total
+    const dotInp = document.getElementById('dotacionInput');
+    const dotacionTotal = Math.max(0, Number((dotInp && dotInp.value) || localStorage.getItem('dotacionTotal') || 108) || 0);
+    if (dotInp) { dotInp.value = String(dotacionTotal || 108); }
+    const avance = dotacionTotal ? (uniqOp.size / dotacionTotal) * 100 : 0;
+    const elAv = document.getElementById('kpiAvanceDotacion');
+    const elDot = document.getElementById('kpiDotacionTotal');
+    if (elAv) elAv.textContent = (Math.round(avance * 10) / 10).toFixed(1) + '%';
+    if (elDot) elDot.textContent = 'Sobre dotación total ' + (dotacionTotal || 108);
+
 
     const avg = (arr) => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
 
