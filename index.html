@@ -133,14 +133,48 @@ body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f3f4f6; 
 .card{overflow:hidden}
 .table-card{margin-top:14px}
 .table-wrap{overflow:auto;max-width:100%}
+
+/* ===== Print / PDF (A4) ===== */
+@media print{
+  @page { size: A4 portrait; margin: 12mm; }
+  body{ background:#fff !important; }
+  .container{ max-width: 100% !important; padding: 0 !important; }
+  header{ position: static !important; box-shadow: none !important; }
+  .filters, .btn, .actions, .toolbar, .topbar { display:none !important; }
+  /* keep only core filters row if you want; currently hide all controls */
+  .grid-kpis{ grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
+  .kpi{ break-inside: avoid; }
+  .grid-charts{ grid-template-columns: 1fr !important; }
+  .chart-wrap{ height: 220px !important; min-height: 220px !important; }
+  .card{ box-shadow:none !important; border: 1px solid #e5e7eb !important; }
+  .table-wrap{ overflow: visible !important; }
+  table{ font-size: 10px !important; }
+  th, td{ padding: 6px 8px !important; }
+}
+/* helper class for print preview (same as print) */
+body.print-mode{
+  background:#fff;
+}
+body.print-mode .container{ max-width:100%; padding:0; }
+body.print-mode header{ position: static; box-shadow:none; }
+body.print-mode .filters, 
+body.print-mode .btn, 
+body.print-mode .actions, 
+body.print-mode .toolbar, 
+body.print-mode .topbar{ display:none; }
+body.print-mode .grid-charts{ grid-template-columns:1fr; }
+body.print-mode .chart-wrap{ height:220px; min-height:220px; }
+body.print-mode .card{ box-shadow:none; border:1px solid #e5e7eb; }
+
 </style>
 </head>
 
 <body>
 <header>
-   <div>
+  <div>
     <img src="logo_Xtreme.png" alt="Xtreme Mining" />
     <div>
+
     <div class="brand-text">
       <div class="brand-title">Dashboard Evaluaciones – Operadores</div>
       <div class="brand-sub">Creado por Bernardo Ojeda Molina – Jefe de Innovación y Formación</div>
@@ -607,31 +641,121 @@ body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f3f4f6; 
   }
 
   /**************** Exportar PDF ****************/
-  async function exportarPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:"landscape", unit:"pt", format:"a4" });
+  async 
+function exportarPDF(){
+  // Exportación por impresión (PDF) en una ventana limpia y blanca.
+  // Incluye KPIs, gráficos (como imágenes) y la tabla de datos debajo.
+  try{
+    const logoEl = document.getElementById('brandLogo');
+    const logoSrc = (logoEl && logoEl.src) ? logoEl.src : '';
+    const title = document.title || 'Dashboard Evaluaciones – Operadores';
 
-    doc.setFontSize(14);
-    doc.text("Dashboard Evaluaciones – Operadores", 40, 40);
-    doc.setFontSize(10);
-    doc.text("Generado desde el dashboard", 40, 58);
+    const kpiHtml = document.getElementById('kpiGrid')?.innerHTML || '';
+    const filtrosResumen = (() => {
+      const rut = (document.getElementById('rutInput')?.value || '').trim();
+      const eq = document.getElementById('equipoFilter')?.value || 'Todos';
+      const ct = document.getElementById('contratoFilter')?.value || 'Todos';
+      const ins = document.getElementById('instructorFilter')?.value || 'Todos';
+      const parts = [];
+      if(rut) parts.push(`RUT: <b>${escapeHtml(rut)}</b>`);
+      if(eq && eq!=='Todos') parts.push(`Equipo: <b>${escapeHtml(eq)}</b>`);
+      if(ct && ct!=='Todos') parts.push(`Contrato: <b>${escapeHtml(ct)}</b>`);
+      if(ins && ins!=='Todos') parts.push(`Instructor: <b>${escapeHtml(ins)}</b>`);
+      return parts.length ? parts.join(' · ') : 'Sin filtros';
+    })();
 
-    const head = [["RUT","Nombre","Fecha","Cargo","Equipo","Contrato","Instructor","Total puntos","Nota final"]];
-    const body = registrosActuales.map(r => [
-      r.rut, r.nombre, r.fecha, r.cargo, r.equipo, r.contrato, r.instructor,
-      String(r.totalPuntos ?? 0), String(r.notaFinal ?? 0)
-    ]);
+    // Gráficos -> imágenes
+    const img1 = chartNotaOperador?.canvas?.toDataURL('image/png', 1.0) || '';
+    const img2 = chartPromEquipo?.canvas?.toDataURL('image/png', 1.0) || '';
+    const img3 = chartPuntosOperador?.canvas?.toDataURL('image/png', 1.0) || '';
 
-    doc.autoTable({
-      startY: 80,
-      head,
-      body,
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [17, 24, 39] }
-    });
+    // Tabla actual (ya filtrada/paginada en la UI) -> la imprimimos completa filtrada
+    // Para imprimir TODO lo filtrado, usamos la data filtrada global (filteredData)
+    const rows = (window.__filteredDataForExport || filteredData || []).slice();
+    const cols = window.__columns || columns || [];
+    const tableHead = cols.map(c => `<th>${escapeHtml(c.label || c.key || '')}</th>`).join('');
+    const tableBody = rows.map(r => `<tr>` + cols.map(c => `<td>${escapeHtml((r[c.key] ?? '').toString())}</td>`).join('') + `</tr>`).join('');
 
-    doc.save("dashboard_evaluaciones.pdf");
+    const html = `<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>${escapeHtml(title)} - PDF</title>
+<style>
+  @page{ size:A4 portrait; margin:12mm; }
+  *{ box-sizing:border-box; }
+  body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:#0f172a; background:#fff; }
+  .hdr{ display:flex; align-items:center; gap:12px; padding:0 0 10px; border-bottom:1px solid #e5e7eb; margin-bottom:10px; }
+  .hdr img{ height:34px; width:auto; }
+  .hdr .t{ font-size:16px; font-weight:800; line-height:1.1; }
+  .hdr .s{ font-size:11px; color:#475569; margin-top:2px; }
+  .kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin:10px 0; }
+  .kpis .kpi{ border:1px solid #e5e7eb; border-radius:10px; padding:10px; break-inside:avoid; }
+  .kpis .kpi .kpi-title{ font-size:10px; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .kpis .kpi .kpi-value{ font-size:18px; font-weight:900; margin-top:2px; }
+  .kpis .kpi .kpi-sub{ font-size:10px; color:#64748b; margin-top:2px; }
+  .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
+  .card{ border:1px solid #e5e7eb; border-radius:12px; padding:10px; break-inside:avoid; }
+  .card h3{ margin:0 0 8px; font-size:12px; }
+  .img{ width:100%; height:auto; border-radius:8px; }
+  table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:9px; }
+  th, td{ border:1px solid #e5e7eb; padding:6px 6px; vertical-align:top; }
+  th{ background:#f8fafc; text-align:left; }
+</style>
+</head>
+<body>
+  <div class="hdr">
+    ${logoSrc ? `<img src="${logoSrc}" alt="Logo" />` : ``}
+    <div>
+      <div class="t">Dashboard Evaluaciones – Operadores</div>
+      <div class="s">${escapeHtml(filtrosResumen)}</div>
+    </div>
+  </div>
+
+  <div class="kpis">${kpiHtml}</div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Nota final por operador (Top 20)</h3>
+      ${img1 ? `<img class="img" src="${img1}" />` : `<div style="font-size:11px;color:#64748b">Sin gráfico</div>`}
+    </div>
+    <div class="card">
+      <h3>Promedio nota por equipo</h3>
+      ${img2 ? `<img class="img" src="${img2}" />` : `<div style="font-size:11px;color:#64748b">Sin gráfico</div>`}
+    </div>
+    <div class="card">
+      <h3>Total puntos por operador (Top 20)</h3>
+      ${img3 ? `<img class="img" src="${img3}" />` : `<div style="font-size:11px;color:#64748b">Sin gráfico</div>`}
+    </div>
+
+    <div class="card">
+      <h3>Detalle de registros (filtrado)</h3>
+      <table>
+        <thead><tr>${tableHead}</tr></thead>
+        <tbody>${tableBody}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // imprime automáticamente
+    setTimeout(()=>{ window.print(); }, 400);
+  <\/script>
+</body>
+</html>`;
+
+    const w = window.open('', '_blank');
+    if(!w){ alert('Tu navegador bloqueó la ventana emergente para imprimir. Permite popups y reintenta.'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }catch(err){
+    console.error(err);
+    alert('No se pudo generar el PDF. Revisa consola.');
   }
+}
+
 
 
   async function cargarCSVsLocales(fileList){
